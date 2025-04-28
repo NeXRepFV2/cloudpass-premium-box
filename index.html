@@ -14,25 +14,7 @@
       font-family: Arial, sans-serif;
       text-align: center;
       color: #fff;
-    }
-    body {
-      background: linear-gradient(to bottom, #ff7b00, #000000); /* 橙黑渐变 */
-    }
-    /* 星空点缀 */
-    .stars {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      background: transparent;
-      background-image: radial-gradient(white 1px, transparent 1px);
-      background-size: 3px 3px;
-      opacity: 0.3;
-      animation: moveStars 200s linear infinite;
-      z-index: 0;
-    }
-    @keyframes moveStars {
-      from {background-position: 0 0;}
-      to {background-position: 10000px 5000px;}
+      background: linear-gradient(to bottom, #ff7b00, #000000); /* 橙黑渐变，100%覆盖 */
     }
     h1 {
       margin-top: 30px;
@@ -59,6 +41,7 @@
     }
     #startButton:disabled {
       background-color: gray;
+      cursor: not-allowed;
     }
     .blindbox {
       width: 200px;
@@ -86,13 +69,38 @@
       position: relative;
       z-index: 1;
     }
+    #adminZone {
+      display: none;
+      margin-top: 30px;
+      position: relative;
+      z-index: 1;
+    }
+    #adminZone button {
+      background-color: #ff4444;
+      color: white;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+    }
+    .admin-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #ff8800;
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      font-size: 20px;
+      cursor: pointer;
+    }
   </style>
 </head>
 
 <body>
-
-<!-- 星星背景层 -->
-<div class="stars"></div>
 
 <h1>云卡高级盲盒 / CLOUDPASS PREMIUM BOX</h1>
 
@@ -108,16 +116,25 @@
 
 <div id="result" class="result"></div>
 
+<!-- 管理员区域 -->
+<div id="adminZone">
+  <button onclick="resetPool()">重置奖池 / Reset Prize Pool</button>
+</div>
+
+<!-- 管理按钮 -->
+<button class="admin-btn" onclick="adminAccess()">⚙️</button>
+
 <script>
 // Google Sheets同步地址
 const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbzWBIcHXqsSYG82SJ9EmRs8eNAE53CKvP81YH-mmHHHNuLDrAW9dKE3WgapNxmeSE5kcQ/exec";
 
-// 奖池设置
-let prizes = {
+// 原始奖池
+const originalPrizes = {
   "RM100": 100,
   "RM1499": 1
 };
 
+let prizes = {...originalPrizes}; // 当前奖池
 let results = [];
 let totalDraws = 0;
 
@@ -172,6 +189,25 @@ function pickPrize() {
     return "RM100";
   } else {
     return "谢谢参与 / Thank you";
+  }
+}
+
+// 管理员入口
+function adminAccess() {
+  const pwd = prompt("请输入管理员密码 / Enter Admin Password");
+  if (pwd === "888888") {
+    document.getElementById('adminZone').style.display = 'block';
+  }
+}
+
+// 重置奖池
+function resetPool() {
+  if (confirm("确认要重置奖池吗？/ Confirm reset prize pool?")) {
+    prizes = {...originalPrizes};
+    totalDraws = 0;
+    results = [];
+    document.getElementById('result').innerHTML = "";
+    alert("奖池已重置成功！/ Prize pool has been reset!");
   }
 }
 </script>
