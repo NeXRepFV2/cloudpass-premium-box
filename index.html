@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>云卡高级盲盒 CLOUDPASS PREMIUM BOX</title>
+  <style>
+    html, body {
+      height: 100%;
+      width: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom, #FF8C00, #FFB347);
+      text-align: center;
+      color: #fff;
+    }
+    h1 {
+      margin-top: 30px;
+      font-size: 30px;
+    }
+    .form-container {
+      margin: 20px;
+    }
+    input, button {
+      margin: 10px;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: none;
+    }
+    #startButton {
+      background-color: #ff8800;
+      color: white;
+      cursor: pointer;
+    }
+    #startButton:disabled {
+      background-color: gray;
+    }
+    .blindbox {
+      width: 200px;
+      margin: 20px auto;
+      transition: transform 0.3s;
+    }
+    .shake {
+      animation: shake 1s;
+    }
+    @keyframes shake {
+      0% { transform: rotate(0deg);}
+      25% { transform: rotate(10deg);}
+      50% { transform: rotate(-10deg);}
+      75% { transform: rotate(10deg);}
+      100% { transform: rotate(0deg);}
+    }
+    .result {
+      margin: 20px;
+      text-align: left;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  </style>
+</head>
+<body>
+
+<h1>云卡高级盲盒 / CLOUDPASS PREMIUM BOX</h1>
+
+<div class="form-container">
+  <input type="text" id="zmycode" placeholder="请输入ZMY编号 / Enter ZMY Code">
+  <input type="email" id="email" placeholder="请输入Email / Enter Email">
+  <input type="number" id="drawtimes" placeholder="抽奖次数 / Draw Times" min="1">
+  <br>
+  <button id="startButton">开始抽奖 / Start Draw</button>
+</div>
+
+<img src="blindbox.png" alt="盲盒" id="blindbox" class="blindbox">
+
+<div id="result" class="result"></div>
+
+<script>
+// ✅ 替换成新的 Google Sheets 接口
+const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbzWBIcHXqsSYG82SJ9EmRs8eNAE53CKvP81YH-mmHHHNuLDrAW9dKE3WgapNxmeSE5kcQ/exec";
+
+// ✅ 奖池设置
+let prizes = {
+  "RM100": 100,
+  "RM1499": 1
+};
+
+let results = [];
+let totalDraws = 0; // 总抽奖次数
+
+function sendToGoogleSheets(zmy, email, prize, timestamp) {
+  fetch(GOOGLE_SHEET_URL, {
+    method: "POST",
+    body: JSON.stringify({ timestamp: timestamp, zmycode: zmy, email: email, result: prize })
+  }).then(res => console.log("同步成功")).catch(err => console.error("同步失败", err));
+}
+
+document.getElementById('startButton').addEventListener('click', () => {
+  const zmy = document.getElementById('zmycode').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const drawtimes = parseInt(document.getElementById('drawtimes').value);
+
+  if (!zmy || !email || isNaN(drawtimes) || drawtimes <= 0) {
+    alert("请完整填写信息 / Please complete all information");
+    return;
+  }
+
+  document.getElementById('startButton').disabled = true;
+  const box = document.getElementById('blindbox');
+  box.classList.add('shake');
+
+  setTimeout(() => {
+    box.classList.remove('shake');
+    for (let i = 0; i < drawtimes; i++) {
+      totalDraws++;
+      const prize = pickPrize();
+      const now = new Date();
+      const timestamp = now.getFullYear() + "-" + 
+                        ("0" + (now.getMonth()+1)).slice(-2) + "-" + 
+                        ("0" + now.getDate()).slice(-2) + " " +
+                        ("0" + now.getHours()).slice(-2) + ":" +
+                        ("0" + now.getMinutes()).slice(-2) + ":" +
+                        ("0" + now.getSeconds()).slice(-2) + " GMT+8";
+      const message = `🎉 ${zmy} 抽中了 ${prize}！Congratulations! You won ${prize}! (${timestamp})`;
+      results.push({timestamp, zmy, email, prize});
+      document.getElementById('result').innerHTML += `<p>${message}</p>`;
+      sendToGoogleSheets(zmy, email, prize, timestamp);
+    }
+    document.getElementById('startButton').disabled = false;
+  }, 1000);
+});
+
+function pickPrize() {
+  if (totalDraws > 20 && prizes["RM1499"] > 0) {
+    prizes["RM1499"]--;
+    return "RM1499";
+  } else if (prizes["RM100"] > 0) {
+    prizes["RM100"]--;
+    return "RM100";
+  } else {
+    return "谢谢参与 / Thank you";
+  }
+}
+</script>
+
+</body>
+</html>
