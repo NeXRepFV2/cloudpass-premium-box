@@ -9,19 +9,41 @@
       width: 100%;
       margin: 0;
       padding: 0;
-    }
-    body {
+      overflow: hidden;
+      position: relative;
       font-family: Arial, sans-serif;
-      background: linear-gradient(to bottom, #FF8C00, #FFB347);
       text-align: center;
       color: #fff;
+    }
+    body {
+      background: linear-gradient(to bottom, #ff7b00, #000000); /* 橙黑渐变 */
+    }
+    /* 星空点缀 */
+    .stars {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: transparent;
+      background-image: radial-gradient(white 1px, transparent 1px);
+      background-size: 3px 3px;
+      opacity: 0.3;
+      animation: moveStars 200s linear infinite;
+      z-index: 0;
+    }
+    @keyframes moveStars {
+      from {background-position: 0 0;}
+      to {background-position: 10000px 5000px;}
     }
     h1 {
       margin-top: 30px;
       font-size: 30px;
+      position: relative;
+      z-index: 1;
     }
     .form-container {
       margin: 20px;
+      position: relative;
+      z-index: 1;
     }
     input, button {
       margin: 10px;
@@ -42,6 +64,8 @@
       width: 200px;
       margin: 20px auto;
       transition: transform 0.3s;
+      position: relative;
+      z-index: 1;
     }
     .shake {
       animation: shake 1s;
@@ -59,10 +83,16 @@
       max-width: 500px;
       margin-left: auto;
       margin-right: auto;
+      position: relative;
+      z-index: 1;
     }
   </style>
 </head>
+
 <body>
+
+<!-- 星星背景层 -->
+<div class="stars"></div>
 
 <h1>云卡高级盲盒 / CLOUDPASS PREMIUM BOX</h1>
 
@@ -79,17 +109,17 @@
 <div id="result" class="result"></div>
 
 <script>
-// ✅ 替换成新的 Google Sheets 接口
+// Google Sheets同步地址
 const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbzWBIcHXqsSYG82SJ9EmRs8eNAE53CKvP81YH-mmHHHNuLDrAW9dKE3WgapNxmeSE5kcQ/exec";
 
-// ✅ 奖池设置
+// 奖池设置
 let prizes = {
   "RM100": 100,
   "RM1499": 1
 };
 
 let results = [];
-let totalDraws = 0; // 总抽奖次数
+let totalDraws = 0;
 
 function sendToGoogleSheets(zmy, email, prize, timestamp) {
   fetch(GOOGLE_SHEET_URL, {
