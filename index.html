@@ -14,7 +14,7 @@
       font-family: Arial, sans-serif;
       text-align: center;
       color: #fff;
-      background: linear-gradient(to bottom, #ff7b00, #000000); /* 橙黑渐变，100%覆盖 */
+      background: linear-gradient(to bottom, #ff7b00, #000000);
     }
     h1 {
       margin-top: 30px;
@@ -69,34 +69,6 @@
       position: relative;
       z-index: 1;
     }
-    #adminZone {
-      display: none;
-      margin-top: 30px;
-      position: relative;
-      z-index: 1;
-    }
-    #adminZone button {
-      background-color: #ff4444;
-      color: white;
-      padding: 10px 20px;
-      font-size: 16px;
-      border-radius: 8px;
-      border: none;
-      cursor: pointer;
-    }
-    .admin-btn {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: #ff8800;
-      color: #fff;
-      border: none;
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      font-size: 20px;
-      cursor: pointer;
-    }
   </style>
 </head>
 
@@ -115,14 +87,6 @@
 <img src="blindbox.png" alt="盲盒" id="blindbox" class="blindbox">
 
 <div id="result" class="result"></div>
-
-<!-- 管理员区域 -->
-<div id="adminZone">
-  <button onclick="resetPool()">重置奖池 / Reset Prize Pool</button>
-</div>
-
-<!-- 管理按钮 -->
-<button class="admin-btn" onclick="adminAccess()">⚙️</button>
 
 <script>
 // Google Sheets同步地址
@@ -155,7 +119,9 @@ document.getElementById('startButton').addEventListener('click', () => {
     return;
   }
 
+  // 第一次点击就立刻锁死按钮
   document.getElementById('startButton').disabled = true;
+
   const box = document.getElementById('blindbox');
   box.classList.add('shake');
 
@@ -176,7 +142,7 @@ document.getElementById('startButton').addEventListener('click', () => {
       document.getElementById('result').innerHTML += `<p>${message}</p>`;
       sendToGoogleSheets(zmy, email, prize, timestamp);
     }
-    document.getElementById('startButton').disabled = false;
+    // ❌ 不再恢复按钮
   }, 1000);
 });
 
@@ -189,25 +155,6 @@ function pickPrize() {
     return "RM100";
   } else {
     return "谢谢参与 / Thank you";
-  }
-}
-
-// 管理员入口
-function adminAccess() {
-  const pwd = prompt("请输入管理员密码 / Enter Admin Password");
-  if (pwd === "888888") {
-    document.getElementById('adminZone').style.display = 'block';
-  }
-}
-
-// 重置奖池
-function resetPool() {
-  if (confirm("确认要重置奖池吗？/ Confirm reset prize pool?")) {
-    prizes = {...originalPrizes};
-    totalDraws = 0;
-    results = [];
-    document.getElementById('result').innerHTML = "";
-    alert("奖池已重置成功！/ Prize pool has been reset!");
   }
 }
 </script>
